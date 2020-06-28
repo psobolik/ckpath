@@ -1,35 +1,30 @@
+using System;
+using System.Collections.Generic;
+
 namespace ckpath
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-
-    public class PathChecker
+    public static class PathChecker
     {
-        public static IEnumerable<string> GetPath()
+        private static IEnumerable<string> GetPath()
         {
             var path = Environment.GetEnvironmentVariable("PATH");
-            if (!String.IsNullOrWhiteSpace(path))
+            if (string.IsNullOrWhiteSpace(path)) yield break;
+            var pathParts = path.Split(System.IO.Path.PathSeparator);
+            foreach (var pathPart in pathParts)
             {
-                var pathParts = path.Split(System.IO.Path.PathSeparator);
-                foreach (string pathPart in pathParts)
-                {
-                    yield return pathPart;
-                }
+                yield return pathPart;
             }
-            yield break;
         }
 
         public static IEnumerable<string> GetMissingFolders()
         {
             foreach (var folder in GetPath())
             {
-                if (!System.IO.Directory.Exists(folder))
+                if (!System.IO.Directory.Exists(folder.StringWithExpandedTilde()))
                 {
                     yield return folder;
                 }
             }
-            yield break;
         }
 
         public static IEnumerable<string> GetAllFolders()
@@ -38,7 +33,6 @@ namespace ckpath
             {
                 yield return entry;
             }
-            yield break;
         }
 
         public static IEnumerable<string> GetDuplicateFolders()
@@ -61,7 +55,6 @@ namespace ckpath
                     uniqueFolders.Add(folder);
                 }
             }
-            yield break;
         }
     }
 }
