@@ -1,43 +1,43 @@
-﻿namespace ckpath
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ckpath
 {
     internal static class Program
     {
-        static void Main()
+        private static void Main()
         {
-            // DumpAllFolders();
-            DumpMissingFolders();
-            DumpDuplicateFolders();
+            WriteList("PATH:", PathChecker.GetAllFolders);
+            WriteList("Missing folders in PATH:", PathChecker.GetMissingFolders);
+            WriteList("Duplicate folders in PATH:", PathChecker.GetDuplicateFolders);
         }
-        private static void DumpAllFolders()
+
+        private static void WriteList(string header, Func<IEnumerable<string>> func)
         {
-            foreach (var folder in PathChecker.GetAllFolders())
+            const ConsoleColor headerColor = ConsoleColor.Green;
+            const ConsoleColor infoColor = ConsoleColor.Yellow;
+            const ConsoleColor listColor = ConsoleColor.White;
+        
+            static void WriteValue(string value, ConsoleColor foregroundColor)
             {
-                System.Console.WriteLine(folder);
+                Console.ForegroundColor = foregroundColor;
+                Console.WriteLine(value);
+                Console.ResetColor();
             }
-        }
 
-        private static void WriteHeader(string header)
-        {
-            System.Console.ForegroundColor = System.ConsoleColor.Green;
-            System.Console.WriteLine(header);
-            System.Console.ResetColor();
-        }
-
-        private static void DumpMissingFolders()
-        {
-            WriteHeader("Missing folders in PATH:");
-            foreach (var folder in PathChecker.GetMissingFolders())
+            WriteValue(header, headerColor);
+            var values = func().ToArray();
+            if (values.Any())
             {
-                System.Console.WriteLine(folder);
+                foreach (var value in values)
+                {
+                    WriteValue(value, listColor);
+                }
             }
-        }
-
-        private static void DumpDuplicateFolders()
-        {
-            WriteHeader("Duplicate folders in PATH:");
-            foreach (var folder in PathChecker.GetDuplicateFolders())
+            else
             {
-                System.Console.WriteLine(folder);
+                WriteValue("[None]", infoColor);
             }
         }
     }
